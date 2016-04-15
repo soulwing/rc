@@ -22,11 +22,10 @@ In order to use `rc` you need the following:
 
 Run the script with no arguments to see the options.
 
-When making a request that sends a body (POST, PUT, PATCH) the body content
-will be read from stdin.
+When making a request that sends a body (i.e. POST, PUT, PATCH) the body 
+content will be read from stdin.
 
-When making a request that returns a response (any) the body content will
-be written to stdout.
+The response body content will be written to stdout.
 
 Environment variables provide the base URL for the web service, and the 
 values for the `Accept` and `Content-Type` headers.
