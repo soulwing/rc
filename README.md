@@ -27,3 +27,12 @@ will be read from stdin.
 
 When making a request that returns a response (any) the body content will
 be written to stdout.
+
+Environment variables provide the base URL for the web service, and the 
+values for the `Accept` and `Content-Type` headers.
+
+* `BASE_URL` -- base URL for the web service; default: `http://localhost:8080`
+* `CONTENT_TYPE` -- value for the `Content-Type` header; default is 
+  `application/json`
+* `ACCEPT` -- accept header; default prefers the type specified by
+  `CONTENT_TYPE`, then text of any kind, then application data of any kind
