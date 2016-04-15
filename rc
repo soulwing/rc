@@ -1,0 +1,102 @@
+#!/bin/sh
+
+BASE_URL=${BASE_URL:-http://localhost:8080}
+CONTENT_TYPE=${CONTENT_TYPE:-"application/json"}
+ACCEPT=${ACCEPT:-"$CONTENT_TYPE;q=1.0,text/*;q=0.5,application/*;q=0.25"}
+
+METHODS="get|post|put|delete|patch|options"
+REQUEST_BODY_METHODS="post|put|patch"
+
+function usage() {
+  echo "$(basename $0) [-xml] $METHODS absolute-path"
+  exit 1
+}
+
+arg=$1
+if [ "-xml" = "$arg" ]; then
+  CONTENT_TYPE=application/xml
+  shift
+fi
+
+method=$1
+if [ -z "$method" ]; then
+  usage
+fi
+shift
+
+url=$1
+if [ -z "$url" ]; then
+  usage
+fi
+shift
+
+filename=$1
+
+echo $METHODS | grep -i $method >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+  usage  
+fi
+
+method=$(echo $method | tr [a-z] [A-Z])
+
+datafile=$(mktemp -t crs)
+echo $REQUEST_BODY_METHODS | grep -i $method >/dev/null 2>&1
+if [ $? -eq 0 ]; then
+  if [ -n "$filename" ]; then
+    if [ -r "$filename" ]; then
+      cat $filename >$datafile
+    else 
+      echo "$filename: not readable" >&2
+      exit 2
+    fi
+  else
+    cat <&0 >$datafile
+  fi
+fi
+
+outfile=$(mktemp -t crs)
+errfile=$(mktemp -t crs)
+curl --verbose \
+     --header "Accept: $ACCEPT" \
+     --header "Content-Type: $CONTENT_TYPE" \
+     --request $method --url "${BASE_URL}${url}" \
+     --data-binary @${datafile} \
+     1>${outfile} 2>${errfile}
+
+rc=$?
+
+status=$(grep "< HTTP" $errfile)
+if [ -n "$status" ]; then
+  status=$(echo $status | tr -d '\015' | sed 's/.*< HTTP\/[0-9.]* *//')
+  echo $status >&2
+  statuscode=$(echo $status | awk '{print $1}')
+  location=$(grep "^< Location: " $errfile)
+  if [ -n "$location" ]; then
+    location=$(echo $location | tr -d '\015' | sed "s/^< //; s|$BASE_URL||")
+    echo $location >&2
+  fi
+else 
+  cat $errfile >&2
+fi
+
+output=$(cat $outfile)
+if [ $rc -eq 0 -a $statuscode -lt 300 -a -n "$output" ]; then
+  if [ -n "$filename" ]; then
+    if [ \! -f "$filename" ]; then
+      cat $outfile > $filename
+    elif [ -w "$filename" ]; then
+      cat $outfile > $filename
+    else 
+      echo "$filename: not writable" >&2
+      cat $outfile
+      echo
+    fi
+  else 
+    cat $outfile
+    echo
+  fi
+fi
+
+rm -f $datafile
+rm -f $outfile
+rm -f $errfile
