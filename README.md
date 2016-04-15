@@ -21,8 +21,9 @@ In order to use `rc` you need the following:
 
 ### Installation
 
-1. Copy the file named `rc` to some directory that is on your path.
-2. Make sure the permissions on the file allow you to execute it.
+1. Clone this repository into some convenient location.
+2. Copy the file named `rc` to some directory that is on your path.
+3. Make sure the permissions on the file allow you to execute it.
 
 ### Usage
 
