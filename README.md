@@ -3,8 +3,14 @@ rc
 
 A stupidly simple RESTful client.
 
+The goal of this little effort was to provide a minimalistic RESTful 
+command-line interface that would be suitable for doing RESTful web
+service demos. The result probably isn't robust enough for anything more
+important.
+
 This "client" is just a shell script that uses [curl] (http://curl.haxx.se) 
 to send requests to a RESTful web service and receive responses.
+
 
 ### Prerequisites
 
