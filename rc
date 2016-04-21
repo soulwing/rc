@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "-xml" = "$1" ]; then
+  CONTENT_TYPE=application/xml
+  shift
+fi
+
 BASE_URL=${BASE_URL:-http://localhost:8080}
 CONTENT_TYPE=${CONTENT_TYPE:-"application/json"}
 ACCEPT=${ACCEPT:-"$CONTENT_TYPE;q=1.0,text/*;q=0.5,application/*;q=0.25"}
@@ -11,12 +16,6 @@ function usage() {
   echo "usage: $(basename $0) [-xml] $METHODS absolute-path" >&2
   exit 1
 }
-
-arg=$1
-if [ "-xml" = "$arg" ]; then
-  CONTENT_TYPE=application/xml
-  shift
-fi
 
 method=$1
 if [ -z "$method" ]; then
